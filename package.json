@@ -1,20 +1,12 @@
 {
-  "name": "mana-ai",
+  "name": "mana-ai-monorepo",
   "private": true,
-  "version": "0.1.0",
-  "description": "Node.js workspace for the Mana AI backend API.",
-  "engines": {
-    "node": ">=22.13.0",
-    "npm": ">=10.0.0"
-  },
-  "workspaces": [
-    "apps/mana_ai_api"
-  ],
   "scripts": {
-    "dev:api": "npm run dev --workspace=@mana-ai/api",
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "verify": "npm run typecheck && npm test && npm run build"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd MANA-BACKEND && npm run dev",
+    "dev:frontend": "cd MANA-AI FRONTEND && flutter run -d chrome"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

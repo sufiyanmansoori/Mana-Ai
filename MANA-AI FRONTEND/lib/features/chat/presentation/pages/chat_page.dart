@@ -128,7 +128,7 @@ class _ChatPageState extends State<ChatPage> {
       _activeConversation.recordMessage(content);
     }
     setState(() {});
-    return sent;
+    return sent || addedUserMessage;
   }
 
   void _startNewChat() {

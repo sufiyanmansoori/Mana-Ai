@@ -76,6 +76,53 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Hello from remote Mana AI'), findsOneWidget);
+    expect(
+      tester.widget<TextField>(find.byType(TextField).last).controller!.text,
+      isEmpty,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('clears a remote prompt already added when the request fails',
+      (tester) async {
+    final repository =
+        _WidgetConversationRepository(failAfterUserMessage: true);
+    final session = ChatSessionController(
+      repository: repository,
+      sendMessage: SendMessageUseCase(repository),
+    );
+    addTearDown(session.dispose);
+
+    await tester.pumpWidget(
+      ManaAiApp(
+        config: AppConfig(
+          environment: AppEnvironment.development,
+          apiBaseUri: null,
+        ),
+        chatController: ChatController(LocalChatRepository()),
+        chatSessionController: session,
+        modelIds: const ['model-a'],
+        chatModel: 'model-a',
+        initialConversationId: 'test-conversation',
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'Hello Mana');
+    await tester.tap(find.byTooltip('Send message'));
+    await tester.pumpAndSettle();
+
+    expect(
+      session.messages
+          .where((message) => message.role == ChatMessageRole.user)
+          .length,
+      1,
+    );
+    expect(
+      tester.widget<TextField>(find.byType(TextField).last).controller!.text,
+      isEmpty,
+    );
+    expect(find.text('An unexpected error occurred.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -170,6 +217,9 @@ void main() {
 
 final class _WidgetConversationRepository
     implements ChatConversationRepository {
+  _WidgetConversationRepository({this.failAfterUserMessage = false});
+
+  final bool failAfterUserMessage;
   final _messages = <ChatMessage>[];
   bool _isGenerating = false;
 
@@ -197,6 +247,10 @@ final class _WidgetConversationRepository
     );
     _messages.add(userMessage);
     yield userMessage;
+    if (failAfterUserMessage) {
+      _isGenerating = false;
+      throw StateError('Request failed');
+    }
 
     final assistantMessage = ChatMessage(
       id: 'remote-assistant',
