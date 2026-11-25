@@ -1,0 +1,12 @@
+{
+  "name": "mana-ai-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd MANA-BACKEND && npm run dev",
+    "dev:frontend": "cd MANA-AI FRONTEND && flutter run -d chrome"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
