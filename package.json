@@ -7,6 +7,6 @@
     "dev:frontend": "cd MANA-AI FRONTEND && flutter run -d chrome"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^10.0.7"
   }
 }
